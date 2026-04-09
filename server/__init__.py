@@ -1,3 +1,3 @@
 """
-server package — FastAPI application
+server package
 """
