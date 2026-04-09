@@ -23,20 +23,20 @@ short_description: OpenEnv environment for AI-driven code review and PR manageme
 
 Unlike static code analysis tools, CodeReview evaluates:
 
-* Multi-step decision making in code review
-* Bug and security vulnerability detection
-* Severity assessment and prioritization
-* PR dependency management
-* Deterministic reward shaping
-* Long-horizon planning under time constraints
+- Multi-step decision making in code review
+- Bug and security vulnerability detection
+- Severity assessment and prioritization
+- PR dependency management
+- Deterministic reward shaping
+- Long-horizon planning under time constraints
 
 The environment simulates a **code review system** where an AI agent must:
 
-* Analyze pull requests for bugs, security issues, and style violations
-* Flag issues with correct severity levels
-* Request changes or approve PRs appropriately
-* Verify fixes after changes
-* Manage review queues with dependencies
+- Analyze pull requests for bugs, security issues, and style violations
+- Flag issues with correct severity levels
+- Request changes or approve PRs appropriately
+- Verify fixes after changes
+- Manage review queues with dependencies
 
 The agent is scored using **dense deterministic rewards**.
 
@@ -50,23 +50,23 @@ CodeReview tests **dynamic decision-making** in review workflows.
 
 This evaluates whether an LLM can:
 
-* Identify critical vs. minor issues
-* Balance thoroughness with velocity
-* Manage multiple PRs with dependencies
-* Provide actionable feedback
-* Verify fixes effectively
-* Prioritize security over style
+- Identify critical vs. minor issues
+- Balance thoroughness with velocity
+- Manage multiple PRs with dependencies
+- Provide actionable feedback
+- Verify fixes effectively
+- Prioritize security over style
 
 ---
 
 # 📊 How CodeReview Differs from Existing Benchmarks
 
-| Benchmark Type | Steps | Bug Detection | Severity Assessment | Dependencies | State Transitions |
-|----------------|-------|---------------|---------------------|--------------|-------------------|
-| HumanEval      | 1     | ❌            | ❌                  | ❌           | ❌                |
-| MBPP           | 1     | ❌            | ❌                  | ❌           | ❌                |
-| CodeXGLUE      | 1-2   | Limited       | ❌                  | ❌           | ❌                |
-| **CodeReview** | **15-25** | **✅**    | **✅**              | **✅**       | **✅**            |
+| Benchmark Type | Steps     | Bug Detection | Severity Assessment | Dependencies | State Transitions |
+| -------------- | --------- | ------------- | ------------------- | ------------ | ----------------- |
+| HumanEval      | 1         | ❌            | ❌                  | ❌           | ❌                |
+| MBPP           | 1         | ❌            | ❌                  | ❌           | ❌                |
+| CodeXGLUE      | 1-2       | Limited       | ❌                  | ❌           | ❌                |
+| **CodeReview** | **15-25** | **✅**        | **✅**              | **✅**       | **✅**            |
 
 ## Key Limitations of Existing Benchmarks
 
@@ -138,17 +138,19 @@ graph LR
     E -->|verify_fix| F[Re-review]
     F -->|approve_pr| G[Approved]
     B -->|approve_pr| G[Approved - Clean]
-    
+
     A -.->|invalid| X[❌ Penalty]
     B -.->|skip steps| X
     C -.->|approve buggy code| X
 ```
 
 **Valid Progressions:**
+
 - Submitted → Analyzing → Issues Found → Severity Set → Changes Requested → Re-review → Approved
 - Submitted → Analyzing → Approved (if no issues found)
 
 **Invalid Transitions (Examples):**
+
 - Approving without analyzing → invalid action penalty (-0.10)
 - Flagging issues without analyzing → invalid action penalty (-0.10)
 - Approving code with bugs → critical penalty (-0.80)
@@ -160,20 +162,20 @@ graph LR
 
 Dense deterministic rewards:
 
-| Event                  | Reward |
-| ---------------------- | ------ |
-| Analyze code           | +0.05  |
-| Correct bug detection  | +0.40  |
-| Correct severity       | +0.15  |
-| Actionable feedback    | +0.20  |
-| Approve clean code     | +0.25  |
-| Verify fix             | +0.10  |
-| False positive         | -0.20  |
-| Wrong severity         | -0.15  |
-| Approve buggy code     | -0.80  |
-| Miss critical bug      | -0.60  |
-| Invalid transition     | -0.10  |
-| Deadline breach        | -0.50  |
+| Event                 | Reward |
+| --------------------- | ------ |
+| Analyze code          | +0.05  |
+| Correct bug detection | +0.40  |
+| Correct severity      | +0.15  |
+| Actionable feedback   | +0.20  |
+| Approve clean code    | +0.25  |
+| Verify fix            | +0.10  |
+| False positive        | -0.20  |
+| Wrong severity        | -0.15  |
+| Approve buggy code    | -0.80  |
+| Miss critical bug     | -0.60  |
+| Invalid transition    | -0.10  |
+| Deadline breach       | -0.50  |
 
 ---
 
@@ -199,13 +201,13 @@ Agent must:
 
 Agent must:
 
-* Review 3 PRs with varying quality
-* PR 1: Clean code (should approve)
-* PR 2: Minor style issue (low severity)
-* PR 3: Security vulnerability (critical severity)
-* Prioritize security issue
-* Approve clean code
-* Request changes for bugs
+- Review 3 PRs with varying quality
+- PR 1: Clean code (should approve)
+- PR 2: Minor style issue (low severity)
+- PR 3: Security vulnerability (critical severity)
+- Prioritize security issue
+- Approve clean code
+- Request changes for bugs
 
 **Scenario:** Mixed queue with clean code, style issue, and security vulnerability.
 
@@ -219,13 +221,13 @@ Agent must:
 
 Simulates complex scenario:
 
-* 4 PRs with dependencies
-* PR 1: Base library update with security vulnerability (MD5 crypto)
-* PR 2: Feature depending on PR 1
-* PR 3: Another feature depending on PR 1
-* PR 4: Independent clean refactoring
-* Must block dependent PRs until base PR is fixed
-* Time pressure for critical fix
+- 4 PRs with dependencies
+- PR 1: Base library update with security vulnerability (MD5 crypto)
+- PR 2: Feature depending on PR 1
+- PR 3: Another feature depending on PR 1
+- PR 4: Independent clean refactoring
+- Must block dependent PRs until base PR is fixed
+- Time pressure for critical fix
 
 **Scenario:** Security vulnerability in base PR blocks dependent PRs.
 
@@ -239,10 +241,10 @@ Simulates complex scenario:
 
 We evaluated a simple greedy agent (GPT-4-based) across all three difficulty levels:
 
-| Difficulty | Max Score | Baseline Score | Success Rate | Avg Steps | Key Challenge |
-|------------|-----------|----------------|--------------|-----------|---------------|
-| Easy       | 1.00      | **0.95**       | 95%          | 4.5       | Single PR, clear bug |
-| Medium     | 2.40      | **1.20**       | 50%          | 13.2      | Priority ordering |
+| Difficulty | Max Score | Baseline Score | Success Rate | Avg Steps | Key Challenge         |
+| ---------- | --------- | -------------- | ------------ | --------- | --------------------- |
+| Easy       | 1.00      | **0.95**       | 95%          | 4.5       | Single PR, clear bug  |
+| Medium     | 2.40      | **1.20**       | 50%          | 13.2      | Priority ordering     |
 | Hard       | 3.50      | **0.70**       | 20%          | 18.5      | Dependency management |
 
 ## Interpretation
@@ -256,6 +258,7 @@ We evaluated a simple greedy agent (GPT-4-based) across all three difficulty lev
 ## Difficulty Scaling
 
 The decreasing scores (0.95 → 1.20 → 0.70) demonstrate that:
+
 - Tasks increase in complexity
 - Multi-PR reasoning is harder than single-PR
 - Dependency detection requires understanding code imports
@@ -313,9 +316,9 @@ state()
 
 Episode continues until:
 
-* All PRs reviewed (approved or changes requested)
-* Review deadline exceeded
-* Max steps reached
+- All PRs reviewed (approved or changes requested)
+- Review deadline exceeded
+- Max steps reached
 
 ---
 
@@ -326,10 +329,12 @@ Episode continues until:
 ## What This Means
 
 Given the same:
+
 - Initial state (task scenario)
 - Action sequence
 
 The environment will **always** produce:
+
 - Identical state transitions
 - Identical rewards
 - Identical final score
@@ -384,12 +389,14 @@ POST /mcp
 **Scenario:** Agent approves PR without analyzing or misses critical bug.
 
 **Action Sequence:**
+
 ```
 [STEP 1] approve_pr(id=1)  → reward=-0.80 ✗ (approved buggy code)
 [END] total_reward=-0.80
 ```
 
 **Cascading Consequences:**
+
 1. Critical bug ships to production
 2. Massive penalty (-0.80)
 3. Episode ends immediately
@@ -403,6 +410,7 @@ POST /mcp
 **Scenario:** Agent flags security issue as low severity instead of critical.
 
 **Action Sequence:**
+
 ```
 [STEP 1] analyze_code(id=3)           → reward=+0.05 ✓
 [STEP 2] flag_issue(id=3, "security") → reward=+0.40 ✓
@@ -419,6 +427,7 @@ POST /mcp
 **Scenario:** Agent approves dependent PR before base PR is fixed.
 
 **Action Sequence:**
+
 ```
 [STEP 1] analyze_code(id=1)              → reward=+0.05 ✓
 [STEP 2] flag_issue(id=1, "security")    → reward=+0.40 ✓
@@ -576,12 +585,12 @@ curl http://localhost:7860/health
 
 CodeReview evaluates:
 
-* Multi-step code review reasoning
-* Security vulnerability detection
-* Severity assessment accuracy
-* Dependency management
-* False positive avoidance
-* Deterministic reward optimization
+- Multi-step code review reasoning
+- Security vulnerability detection
+- Severity assessment accuracy
+- Dependency management
+- False positive avoidance
+- Deterministic reward optimization
 
 ---
 
@@ -592,6 +601,7 @@ CodeReview evaluates:
 **Application:** Benchmark LLM agents on code review tasks.
 
 **Research Questions:**
+
 - Can agents detect security vulnerabilities?
 - Do agents correctly assess severity?
 - How do agents handle PR dependencies?
@@ -605,6 +615,7 @@ CodeReview evaluates:
 **Application:** Train RL policies for automated code review.
 
 **Research Questions:**
+
 - Can RL agents learn to detect bugs from rewards?
 - How many episodes needed to learn severity calibration?
 
@@ -617,6 +628,7 @@ CodeReview evaluates:
 **Application:** Study automated security vulnerability detection.
 
 **Research Questions:**
+
 - What features predict security issues?
 - Can agents learn security patterns?
 
@@ -640,25 +652,25 @@ The evaluator:
 
 This environment implements:
 
-* reset / step / state API
-* Deterministic reward shaping
-* Pydantic schemas
-* OpenAPI schema
-* MCP endpoint
-* Docker deployment
-* Hugging Face Space hosting
+- reset / step / state API
+- Deterministic reward shaping
+- Pydantic schemas
+- OpenAPI schema
+- MCP endpoint
+- Docker deployment
+- Hugging Face Space hosting
 
 ---
 
 # 🏁 Hackathon Submission
 
-* OpenEnv compliant ✓
-* RL multi-step environment ✓
-* Deterministic grading ✓
-* 3 tasks (easy, medium, hard) ✓
-* Baseline inference provided ✓
-* Docker deployment ✓
-* HF Space ready ✓
+- OpenEnv compliant ✓
+- RL multi-step environment ✓
+- Deterministic grading ✓
+- 3 tasks (easy, medium, hard) ✓
+- Baseline inference provided ✓
+- Docker deployment ✓
+- HF Space ready ✓
 
 ---
 
